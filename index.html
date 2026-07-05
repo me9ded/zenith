@@ -222,13 +222,20 @@
   }
 
   .pond {
-    position: fixed;
-    left: 0; right: 0; bottom: 64px;
+    position: relative;
+    width: 100vw;
     height: 60px;
+    margin-top: auto;
     pointer-events: none;
-    z-index: 1;
     overflow: hidden;
   }
+  .pond * { pointer-events: none; }
+  .pond .flip {
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pond .flip:focus-visible { outline: 1px dashed rgba(245,184,196,0.6); border-radius: 12px; }
   .swimmer {
     position: absolute;
     left: 0; top: 6px;
@@ -266,6 +273,7 @@
 
   @media (prefers-reduced-motion: reduce) { .snake { animation: none; } }
 
+  .hint2 { margin-top: 6px; opacity: 0.75; }
   .hint {
     font-size: 0.8rem;
     letter-spacing: 0.12em;
@@ -276,6 +284,8 @@
   }
 
   .note-area {
+    position: relative;
+    z-index: 2;
     max-width: 480px;
     width: 100%;
     min-height: 190px;
@@ -355,14 +365,40 @@
   .pill.quiet:hover, .pill.quiet:focus-visible { background: var(--muted); color: var(--bg-deep); }
 
 
-  footer {
-    margin-top: auto;
-    padding-top: 32px;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    color: rgba(160,139,160,0.65);
-    line-height: 1.8;
+
+  .intro {
+    max-width: 420px;
+    margin-top: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    transition: opacity 0.6s ease;
   }
+  .intro-text {
+    font-size: 0.95rem;
+    line-height: 2;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .intro-text b { color: var(--pink); font-weight: 500; }
+  .pill.start {
+    opacity: 1;
+    pointer-events: auto;
+    text-transform: none;
+    letter-spacing: 0.05em;
+    font-size: 1rem;
+    padding: 13px 26px;
+  }
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex: 1;
+  }
+  .main.hidden { display: none; }
+
 
   /* ---------- breathing mode ---------- */
   .breath-overlay {
@@ -432,7 +468,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .lit .glow, .lit .flame, .breath-overlay.on .breath-glow { animation: none; }
-    .note, .signature, .pill, .glow, .flame, .breath-overlay { transition-duration: 0.2s; }
+    .note, .pill, .glow, .flame { transition-duration: 0.2s; }
   }
 </style>
 </head>
@@ -442,6 +478,21 @@
   <h1>for <em id="nameTap">zenith</em></h1>
   <p class="sub" id="sub">in case the day feels heavy</p>
 </header>
+
+<div class="intro" id="intro">
+  <p class="intro-text">
+    i made this little place for your heavy days.<br>
+    inside, you'll find the piece we painted on our date,<br>
+    a note from me whenever you need one,<br>
+    and a small pink lifeguard if it all gets to be a lot.<br>
+    when the candle glows, breathe with it: in for 4, out for 6.<br>
+    <b>built july 2026, after the pottery date.</b>
+  </p>
+  <button class="pill start" id="startBtn">helping to de-stress my cutie</button>
+</div>
+
+<div class="main hidden" id="main">
+
 
 <div class="scene" id="scene" role="button" tabindex="0" aria-label="Light the candle to read a note">
   <div class="glow"></div>
@@ -528,25 +579,16 @@
   </div>
 </div>
 
-<p class="hint" id="hint">tap the candle you painted</p>
+<p class="hint" id="hint">tap the candle holder you painted, again for another note</p>
+<p class="hint hint2" id="hint2">and if today was a lot, catch the axolotl, then breathe with the glow.</p>
 
 <div class="note-area">
   <p class="note" id="note" aria-live="polite"></p>
-  <p class="signature" id="signature">&mdash; amine</p>
-  <div class="buttons">
-    <button class="pill" id="another">one more</button>
-    <button class="pill quiet" id="breathBtn">today was a lot</button>
-  </div>
 </div>
 
-<footer>
-  the glow breathes with you &mdash; in for 4, out for 6<br>
-  built july 2026, after the pottery date
-</footer>
-
-<div class="pond" aria-hidden="true">
+<div class="pond">
   <div class="swimmer">
-    <span class="flip">
+    <span class="flip" id="axoTap" role="button" tabindex="0" aria-label="Breathe with the axolotl">
       <svg width="92" height="46" viewBox="0 0 100 50">
         <path d="M14 25 C14 14 26 8 42 8 C66 8 78 14 84 20 L97 10 C95 22 95 28 97 40 L84 30 C78 36 66 42 42 42 C26 42 14 36 14 25 Z" fill="#f5b8c4"/>
         <g stroke="#e881a0" stroke-width="4" stroke-linecap="round">
@@ -560,6 +602,8 @@
       </svg>
     </span>
   </div>
+</div>
+
 </div>
 
 <div class="breath-overlay" id="breathOverlay">
@@ -576,28 +620,29 @@
     "Breathe. In for 4, out for 6. The candle will do it with you. I'll wait.",
     "You don't have to have it figured out today. Today just needs surviving. Tomorrow can be impressed by you.",
     "Text me. Yes, even about this. Especially about this.",
-    "Stress check: have you eaten? Drink water. This is a threat 🥰",
+    "Stress check: have you eaten? Drink water. This is a threat \ud83e\udd70",
     "You're a designer, treat the problem like a bad first draft. It's allowed to be ugly right now.",
     "Somewhere out there, I'm rooting for you. Probably right now, actually.",
     "Nothing about you has ever felt like a burden to me. Not once.",
     "Close the laptop. Look out a window. There's a whole world out there that has no deadlines in it.",
-    "Just ao you know you're a cinnamon girl who solves every murder mystery you'll solve this one too ❤️"
+    "Just so you know you're a cinnamon girl who solves every murder mystery you'll solve this one too \u2764\ufe0f"
   ];
 
-  const caseNote = "CASE FILE #002 — the mystery of the racing heart\nSUSPECT: Zenith. Cutiepie. Cheeky. Cinnamon girl.\nEVIDENCE: one perfectly painted candle holder. Several very cute decisions about colours. A laugh the detective keeps thinking about.\nVERDICT: guilty of being the best part of my week.\nSENTENCE: a second date. No appeals.\n— detective amine";
+  const caseNote = "CASE FILE #002: the mystery of the racing heart\nSUSPECT: Zenith. Cutiepie. Cheeky. Cinnamon girl.\nEVIDENCE: one perfectly painted candle holder. Several very cute decisions about colours. A laugh the detective keeps thinking about.\nVERDICT: guilty of being the best part of my week.\nSENTENCE: a second date. No appeals.\n\u2014 detective amine";
 
-  const secretNote = "You looked very cute on our first date — especially when you were deciding which colours to use, and when you were painting.";
+  const secretNote = "You looked very cute on our first date, especially when you were deciding which colours to use, and when you were painting.";
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('main').classList.remove('hidden');
+  });
 
   const scene = document.getElementById('scene');
   const flameTap = document.getElementById('flameTap');
   const hint = document.getElementById('hint');
+  const hint2 = document.getElementById('hint2');
   const note = document.getElementById('note');
-  const signature = document.getElementById('signature');
-  const another = document.getElementById('another');
-  const breathBtn = document.getElementById('breathBtn');
-  const breathOverlay = document.getElementById('breathOverlay');
-  const breathText = document.getElementById('breathText');
-  const breathExit = document.getElementById('breathExit');
+  const axoTap = document.getElementById('axoTap');
   const sub = document.getElementById('sub');
 
   // time-aware subtitle
@@ -632,15 +677,11 @@
 
   function displayNote(text, isSecret) {
     note.classList.remove('show');
-    signature.classList.remove('show');
     setTimeout(() => {
       note.textContent = text;
       note.classList.toggle('secret', isSecret === 'pink');
       note.classList.toggle('case', isSecret === 'case');
       note.classList.add('show');
-      signature.classList.add('show');
-      another.classList.add('show');
-      breathBtn.classList.add('show');
     }, lit ? 350 : 900);
   }
 
@@ -653,11 +694,8 @@
       lit = true;
       scene.classList.add('lit');
       hint.style.opacity = '0';
+      hint2.style.opacity = '0';
     }
-    displayNote(nextNote(), false);
-  });
-
-  another.addEventListener('click', () => {
     displayNote(nextNote(), false);
   });
 
@@ -666,6 +704,7 @@
       lit = true;
       scene.classList.add('lit');
       hint.style.opacity = '0';
+      hint2.style.opacity = '0';
     }
     displayNote(caseNote, 'case');
   });
@@ -675,13 +714,15 @@
     displayNote(secretNote, 'pink');
   });
 
-
-  // breathing mode
+  const breathOverlay = document.getElementById('breathOverlay');
+  const breathText = document.getElementById('breathText');
+  const breathExit = document.getElementById('breathExit');
   let breathTimer = null;
 
   function startBreathCycle() {
+    clearTimeout(breathTimer);
     breathText.textContent = 'breathe in';
-    let phase = 0;
+    let phase = 1;
     function cycle() {
       if (phase === 0) {
         breathText.textContent = 'breathe in';
@@ -693,10 +734,16 @@
         phase = 0;
       }
     }
-    cycle();
+    breathTimer = setTimeout(cycle, 4000);
   }
 
-  breathBtn.addEventListener('click', () => {
+  axoTap.addEventListener('click', () => {
+    if (!lit) {
+      lit = true;
+      scene.classList.add('lit');
+      hint.style.opacity = '0';
+      hint2.style.opacity = '0';
+    }
     breathOverlay.classList.add('on');
     startBreathCycle();
   });
@@ -704,7 +751,15 @@
   breathExit.addEventListener('click', () => {
     breathOverlay.classList.remove('on');
     clearTimeout(breathTimer);
+    displayNote(notes[2], false);
+    scene.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
+
+  axoTap.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); axoTap.click(); }
+  });
+
+
 </script>
 
 </body>
